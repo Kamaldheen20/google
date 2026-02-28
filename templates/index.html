@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Workspace AI Assistant</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.15);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        header h1 {
+            font-size: 1.6rem;
+            margin: 0;
+        }
+        
+        .mode-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 15px;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .btn-demo {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+        
+        .btn-demo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .prompt-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .prompt-input-wrapper {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        
+        .prompt-input {
+            flex: 1;
+            padding: 18px 25px;
+            font-size: 1.1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 50px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .prompt-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        .submit-btn {
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 400px;
+        }
+        
+        .panel {
+            padding: 25px;
+            overflow-y: auto;
+        }
+        
+        .intent-panel {
+            background: #fafafa;
+            border-right: 1px solid #e9ecef;
+        }
+        
+        .result-panel {
+            background: #fff;
+        }
+        
+        .panel-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        
+        .card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .card-content {
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 5px 12px;
+            background: #e9ecef;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 3px;
+        }
+        
+        .tag.service {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .tag.action {
+            background: #48bb78;
+            color: white;
+        }
+        
+        .tag.entity {
+            background: #ed8936;
+            color: white;
+        }
+        
+        .tag.demo {
+            background: #ecc94b;
+            color: #744210;
+        }
+        
+        .result-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .result-item.success {
+            border-left: 4px solid #48bb78;
+        }
+        
+        .result-item.demo {
+            border-left: 4px solid #ecc94b;
+            background: #fffff0;
+        }
+        
+        .result-item.error {
+            border-left: 4px solid #f56565;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .loading.active {
+            display: block;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e9ecef;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .example-prompts {
+            padding: 15px 25px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .example-prompts-title {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .example-btn {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin: 3px;
+            transition: all 0.2s ease;
+        }
+        
+        .example-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #48bb78;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1001;
+        }
+        
+        .toast.visible {
+            display: block;
+        }
+        
+        .toast.error {
+            background: #f56565;
+        }
+        
+        .demo-banner {
+            background: linear-gradient(135deg, #ecc94b 0%, #d69e2e 100%);
+            color: #744210;
+            padding: 15px 25px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .demo-banner a {
+            color: #744210;
+            font-weight: 700;
+        }
+        
+        /* Utility classes to replace inline styles */
+        .header-title-wrapper {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .visible {
+            display: block !important;
+        }
+        
+        .visible-flex {
+            display: flex !important;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .prompt-input-wrapper {
+                flex-direction: column;
+            }
+            
+            .submit-btn {
+                width: 100%;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .mode-badge {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-title-wrapper">
+                <h1>Google Workspace AI</h1>
+                <span class="mode-badge" id="modeBadge">🟢 Demo Mode</span>
+            </div>
+            <div class="auth-buttons" id="authButtons">
+                <a href="/demo-login" class="btn btn-demo">✨ Try Demo</a>
+                <a href="/login" class="btn btn-primary">🔐 Connect Google</a>
+            </div>
+            <div class="user-info hidden" id="userInfo">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <span id="userName">User</span>
+                <a href="/logout" class="btn btn-secondary">Sign Out</a>
+            </div>
+        </header>
+        
+        <div class="main-content">
+            <div class="demo-banner hidden" id="demoBanner">
+                🎯 Demo Mode Active - Enter prompts below to see AI intent detection in action!
+                <a href="/login">Connect Google for full functionality →</a>
+            </div>
+            
+            <div class="prompt-section">
+                <div class="prompt-input-wrapper">
+                    <input type="text" class="prompt-input" id="promptInput" 
+                           placeholder="Ask me anything... ✨ Try: 'Send an email to john@example.com'">
+                    <button class="submit-btn" id="submitBtn" onclick="submitPrompt()">
+                        🚀 Execute
+                    </button>
+                </div>
+            </div>
+            
+            <div class="example-prompts">
+                <div class="example-prompts-title">Try these examples:</div>
+                <button class="example-btn" onclick="setPrompt('Send an email to john@example.com about the project update')">
+                    📧 Send email
+                </button>
+                <button class="example-btn" onclick="setPrompt('Schedule a meeting tomorrow at 3pm with the team')">
+                    📅 Schedule meeting
+                </button>
+                <button class="example-btn" onclick="setPrompt('Create a new document called Quarterly Report')">
+                    📄 Create document
+                </button>
+                <button class="example-btn" onclick="setPrompt('Translate Hello, how are you? to Spanish')">
+                    🌐 Translate text
+                </button>
+                <button class="example-btn" onclick="setPrompt('Find my files about the budget')">
+                    🔍 Search files
+                </button>
+                <button class="example-btn" onclick="setPrompt('Create a note: Remember to call mom')">
+                    📝 Create note
+                </button>
+                <button class="example-btn" onclick="setPrompt('Add contact: John Smith john@example.com')">
+                    👥 Add contact
+                </button>
+                <button class="example-btn" onclick="setPrompt('Show me restaurants near downtown')">
+                    🗺️ Nearby places
+                </button>
+            </div>
+            
+            <div class="content-grid">
+                <div class="panel intent-panel">
+                    <div class="panel-title">🎯 Intent Analysis</div>
+                    <div id="intentContent">
+                        <div class="card">
+                            <div class="card-content">
+                                <p style="color: #999;">Enter a prompt above to see AI-powered intent detection</p>
+                                <p style="color: #666; margin-top: 10px; font-size: 0.9rem;">
+                                    The AI will understand what service you want to use and break it down into tasks.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel result-panel">
+                    <div class="panel-title">📊 Results</div>
+                    <div id="resultContent">
+                        <div class="card">
+                            <div class="card-content">
+                                <p style="color: #999;">Results will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Analyzing your request...</p>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        let isDemoMode = true;
+        
+        // Check authentication on load
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/auth/status');
+                const data = await response.json();
+                
+                isDemoMode = !data.google_configured || !data.authenticated;
+                
+                if (data.authenticated) {
+                    showLoggedInState(data.user_id);
+                } else if (data.google_configured) {
+                    showLoggedOutState();
+                } else {
+                    showDemoState();
+                }
+                
+                // Check URL params
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('demo') === 'true') {
+                    showDemoState();
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+                showDemoState();
+            }
+        }
+        
+        function showDemoState() {
+            isDemoMode = true;
+            document.getElementById('authButtons').classList.remove('hidden');
+            document.getElementById('authButtons').classList.add('visible-flex');
+            document.getElementById('userInfo').classList.remove('visible-flex');
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('modeBadge').innerHTML = '🟡 Demo Mode';
+            document.getElementById('demoBanner').classList.remove('hidden');
+            document.getElementById('demoBanner').classList.add('visible');
+            showToast('Demo mode active! Try entering a prompt.', 'success');
+        }
+        
+        function showLoggedInState(userId) {
+            isDemoMode = false;
+            document.getElementById('authButtons').classList.remove('visible-flex');
+            document.getElementById('authButtons').classList.add('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
+            document.getElementById('userInfo').classList.add('visible-flex');
+            document.getElementById('modeBadge').innerHTML = '🟢 Connected';
+            document.getElementById('demoBanner').classList.remove('visible');
+            document.getElementById('demoBanner').classList.add('hidden');
+            document.getElementById('userAvatar').textContent = userId ? userId.charAt(0).toUpperCase() : 'U';
+            document.getElementById('userName').textContent = userId || 'User';
+            showToast('Successfully connected!', 'success');
+        }
+        
+        function showLoggedOutState() {
+            isDemoMode = false;
+            document.getElementById('authButtons').classList.remove('hidden');
+            document.getElementById('authButtons').classList.add('visible-flex');
+            document.getElementById('userInfo').classList.remove('visible-flex');
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('modeBadge').innerHTML = '🔵 Full Access';
+            document.getElementById('demoBanner').classList.remove('visible');
+            document.getElementById('demoBanner').classList.add('hidden');
+        }
+        
+        async function submitPrompt() {
+            const prompt = document.getElementById('promptInput').value.trim();
+            if (!prompt) {
+                showToast('Please enter a prompt', 'error');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            
+            submitBtn.disabled = true;
+            loading.classList.add('active');
+            
+            try {
+                const response = await fetch('/api/prompt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayIntent(data);
+                    displayResults(data);
+                    
+                    if (data.mode === 'demo') {
+                        showToast('Demo mode: AI detected your intent!', 'success');
+                    } else {
+                        showToast('Request processed successfully!', 'success');
+                    }
+                } else {
+                    displayError(data.error || 'An error occurred');
+                    showToast(data.error || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                displayError(error.message);
+                showToast(error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                loading.classList.remove('active');
+            }
+        }
+        
+        function displayIntent(data) {
+            const intent = data.intent || {};
+            const entities = data.entities || [];
+            
+            const html = `
+                <div class="card">
+                    <div class="card-title">
+                        ${isDemoMode ? '<span class="tag demo">DEMO</span>' : ''} 
+                        Detected Service & Action
+                    </div>
+                    <div class="card-content">
+                        <span class="tag service">${intent.service || 'Unknown'}</span>
+                        <span class="tag action">${intent.action || 'Unknown'}</span>
+                        <p style="margin-top: 10px; color: #666;">
+                            Confidence: ${((intent.confidence || 0) * 100).toFixed(0)}%
+                        </p>
+                        ${isDemoMode ? `
+                            <p style="margin-top: 10px; color: #d69e2e; font-size: 0.9rem;">
+                                ✨ Connect Google for real execution
+                            </p>
+                        ` : ''}
+                    </div>
+                </div>
+                
+                ${entities.length > 0 ? `
+                    <div class="card">
+                        <div class="card-title">Extracted Information</div>
+                        <div class="card-content">
+                            ${entities.map(e => `
+                                <span class="tag entity">${e.type}: ${e.value}</span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div class="card">
+                    <div class="card-title">Generated Tasks (${data.tasks ? data.tasks.length : 0})</div>
+                    <div class="card-content">
+                        ${data.tasks && data.tasks.length > 0 ? data.tasks.map((t, i) => `
+                            <div class="result-item ${isDemoMode ? 'demo' : 'pending'}">
+                                <strong>Task ${i + 1}: ${t.service || 'unknown'}.${t.action || 'unknown'}</strong>
+                                <p style="color: #666; font-size: 0.9rem;">
+                                    ${isDemoMode ? '🎯 Would execute in demo mode' : '⏳ Ready to execute'}
+                                </p>
+                            </div>
+                        `).join('') : '<p style="color: #999;">No tasks generated</p>'}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('intentContent').innerHTML = html;
+        }
+        
+        function displayResults(data) {
+            const results = data.results || {};
+            const resultItems = results.results || [];
+            
+            const html = `
+                ${resultItems.length > 0 ? resultItems.map((item, i) => `
+                    <div class="result-item ${item.status === 'completed' ? 'success' : isDemoMode ? 'demo' : 'pending'}">
+                        <strong>Task ${i + 1}: ${item.service || 'unknown'}.${item.action || 'unknown'}</strong>
+                        <p>${isDemoMode ? '🎯 Demo Mode' : (item.status || 'unknown')}</p>
+                        ${item.result ? `
+                            <pre style="margin-top: 10px; font-size: 0.8rem; background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; max-height: 150px;">${JSON.stringify(item.result, null, 2)}</pre>
+                        ` : ''}
+                        ${isDemoMode && item.note ? `
+                            <p style="color: #d69e2e; margin-top: 10px; font-size: 0.85rem;">${item.note}</p>
+                        ` : ''}
+                    </div>
+                `).join('') : `
+                    <div class="card">
+                        <div class="card-content">
+                            <p style="color: #48bb78;">✅ AI Analysis Complete!</p>
+                            <p style="color: #666; margin-top: 10px;">
+                                The AI has analyzed your request and generated ${data.tasks ? data.tasks.length : 0} task(s).
+                            </p>
+                            ${isDemoMode ? `
+                                <p style="color: #d69e2e; margin-top: 15px; padding: 10px; background: #fffff0; border-radius: 5px;">
+                                    <strong>🎯 What's happening:</strong><br>
+                                    1. Your natural language is analyzed<br>
+                                    2. Intent and entities are extracted<br>
+                                    3. Tasks are generated for execution<br>
+                                    4. Connect Google to execute real actions!
+                                </p>
+                            ` : `
+                                <p style="color: #666; margin-top: 10px;">
+                                    Tasks have been executed successfully.
+                                </p>
+                            `}
+                        </div>
+                    </div>
+                `}
+            `;
+            
+            document.getElementById('resultContent').innerHTML = html;
+        }
+        
+        function displayError(message) {
+            const html = `
+                <div class="result-item error">
+                    <strong>❌ Error</strong>
+                    <p>${message}</p>
+                </div>
+            `;
+            document.getElementById('resultContent').innerHTML = html;
+        }
+        
+        function setPrompt(text) {
+            document.getElementById('promptInput').value = text;
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast visible ' + type;
+            
+            setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 3000);
+        }
+        
+        // Enter key to submit
+        document.getElementById('promptInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                submitPrompt();
+            }
+        });
+        
+        // Check auth on load
+        checkAuth();
+    </script>
+</body>
+</html>

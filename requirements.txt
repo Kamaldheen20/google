@@ -1,0 +1,16 @@
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
+fastapi
+uvicorn
+pydantic
+python-multipart
+python-dotenv
+httpx
+aiofiles
+jinja2
+python-dateutil
+pytz
+PyYAML
+mangum
